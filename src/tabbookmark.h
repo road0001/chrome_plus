@@ -72,6 +72,7 @@ class IniConfig {
 
 IniConfig config;
 
+bool isMouseWheelScroll = false;
 // Use the mouse wheel to switch tabs
 bool HandleMouseWheel(WPARAM wParam, LPARAM lParam, PMOUSEHOOKSTRUCT pmouse) {
   if (wParam != WM_MOUSEWHEEL ||
@@ -104,6 +105,8 @@ bool HandleMouseWheel(WPARAM wParam, LPARAM lParam, PMOUSEHOOKSTRUCT pmouse) {
     } else {
       ExecuteCommand(IDC_SELECT_NEXT_TAB, hwnd);
     }
+    isMouseWheelScroll = true;
+    SendMessage(hwnd, WM_CANCELMODE, 0, 0);
     return true;
   }
 
@@ -244,6 +247,13 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
     if (HandleMouseWheel(wParam, lParam, pmouse)) {
       return 1;
+    }
+
+    // 处理右键按键事件，防止菜单弹出
+    if ((wParam == WM_RBUTTONUP || wParam == WM_CONTEXTMENU) && isMouseWheelScroll) {
+      SendMessage(GetFocus(), WM_CANCELMODE, 0, 0);
+      isMouseWheelScroll = false;  // 重置状态
+      return 1;  // 吞掉右键弹起，阻止菜单
     }
 
     if (HandleDoubleClick(wParam, pmouse) != 0) {

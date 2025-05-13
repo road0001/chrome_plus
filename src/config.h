@@ -106,6 +106,11 @@ bool IsWheelTabWhenPressRightButton() {
                                  kIniPath.c_str()) != 0;
 }
 
+bool IsWheelTabWhenPressRightButtonDisableMenu() {
+  return ::GetPrivateProfileIntW(L"tabs", L"wheel_tab_when_press_rbutton_disable_menu", 1,
+                                 kIniPath.c_str()) != 0;
+}
+
 std::string IsOpenUrlNewTabFun() {
   int value = ::GetPrivateProfileIntW(L"tabs", L"open_url_new_tab", 0,
                                       kIniPath.c_str());

@@ -59,6 +59,7 @@ class IniConfig {
         is_right_click_close(IsRightClickClose()),
         is_wheel_tab(IsWheelTab()),
         is_wheel_tab_when_press_right_button(IsWheelTabWhenPressRightButton()),
+        is_wheel_tab_when_press_right_button_disable_menu(IsWheelTabWhenPressRightButtonDisableMenu()),
         is_bookmark_new_tab(IsBookmarkNewTab()),
         is_open_url_new_tab(IsOpenUrlNewTabFun()) {}
 
@@ -66,6 +67,7 @@ class IniConfig {
   bool is_right_click_close;
   bool is_wheel_tab;
   bool is_wheel_tab_when_press_right_button;
+  bool is_wheel_tab_when_press_right_button_disable_menu;
   std::string is_bookmark_new_tab;
   std::string is_open_url_new_tab;
 };
@@ -105,8 +107,10 @@ bool HandleMouseWheel(WPARAM wParam, LPARAM lParam, PMOUSEHOOKSTRUCT pmouse) {
     } else {
       ExecuteCommand(IDC_SELECT_NEXT_TAB, hwnd);
     }
-    isMouseWheelScroll = true;
-    SendMessage(hwnd, WM_CANCELMODE, 0, 0);
+    if(config.is_wheel_tab_when_press_right_button_disable_menu){
+      isMouseWheelScroll = true;
+      SendMessage(hwnd, WM_CANCELMODE, 0, 0);
+    }
     return true;
   }
 
@@ -250,7 +254,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
     }
 
     // 处理右键按键事件，防止菜单弹出
-    if ((wParam == WM_RBUTTONUP || wParam == WM_CONTEXTMENU) && isMouseWheelScroll) {
+    if ((wParam == WM_RBUTTONUP || wParam == WM_CONTEXTMENU) && isMouseWheelScroll && config.is_wheel_tab_when_press_right_button_disable_menu) {
       SendMessage(GetFocus(), WM_CANCELMODE, 0, 0);
       isMouseWheelScroll = false;  // 重置状态
       return 1;  // 吞掉右键弹起，阻止菜单
